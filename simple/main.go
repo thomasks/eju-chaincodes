@@ -8,6 +8,7 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"github.com/hyperledger/fabric/protos/msp"
 	pb "github.com/hyperledger/fabric/protos/peer"
+	"github.com/thomasks/eju-chaincodes/cryptoutils"
 )
 
 // ToChaincodergs comment
@@ -153,23 +154,24 @@ func (t *Chaincode) write(stub shim.ChaincodeStubInterface, key, value string) p
 }
 
 //{"Args":["writeMultiSegData","key","value",SegDescriptor]}
-/*func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, value, cryptoDescriptor string) pb.Response {
+func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, value, cryptoDescriptor string) pb.Response {
 	fmt.Printf("write %s,value is %s,SegDescriptor is %s", key, value, cryptoDescriptor)
 
 	var writeTo = make(map[string]string)
 
-	var cds []CryptoDescriptor
+	var cds []cryptoutils.CryptoDescriptor
 	if err := json.Unmarshal([]byte(cryptoDescriptor), &cds); err != nil {
 		return shim.Error("unmarshal cryptoDescriptor error: " + err.Error())
 	}
+
 	var rawDataMapArr []map[string]interface{}
 	if err := json.Unmarshal([]byte(value), &rawDataMapArr); err != nil {
 		return shim.Error("unmarshal value error: " + err.Error())
 	}
 
 	//crypto value in each level
-	for i := 0; i < len(rawDataMapArr); i++ {
-		cryptoDataByDescriptor(stub, &rawDataMapArr[i], cds)
+	for _, rawDataMap := range rawDataMapArr {
+		cryptoDataByDescriptor(stub, rawDataMap, cds)
 		//attris := cd.CryptoFields
 		//level := cd.Level
 		//getCryptoKey4ChannelLevel(level, stub.GetChannelID)
@@ -185,19 +187,7 @@ func (t *Chaincode) write(stub shim.ChaincodeStubInterface, key, value string) p
 		return shim.Error("write fail " + err.Error())
 	}
 	return shim.Success(nil)
-}*/
-
-// func cryptoDataByDescriptor(stub shim.ChaincodeStubInterface, rawData *map[string]interface{}, cds []CryptoDescriptor) {
-// 	for i := 0; i < len(cds); i++ {
-// 		cryptokey := getCryptoKey(stub, cds[i].Level)
-// 		keys := cds[i].CryptoFields
-// 		for j := 0; j < len(keys); j++ {
-// 			curKey := keys[j]
-// 			rawValue := rawData[curKey]
-
-// 		}
-// 	}
-// }
+}
 
 //Init {"Args":["init"]}
 func (t *Chaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
@@ -250,12 +240,6 @@ func (t *Chaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	default:
 		return shim.Error("Invalid invoke function name.")
 	}
-}
-
-//CryptoDescriptor comments
-type CryptoDescriptor struct {
-	Level        string
-	CryptoFields []string
 }
 
 func main() {
