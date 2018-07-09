@@ -157,8 +157,6 @@ func (t *Chaincode) write(stub shim.ChaincodeStubInterface, key, value string) p
 func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, value, cryptoDescriptor string) pb.Response {
 	fmt.Printf("write %s,value is %s,SegDescriptor is %s", key, value, cryptoDescriptor)
 
-	var writeTo = make(map[string]string)
-
 	var cds []cryptoutils.CryptoDescriptor
 	if err := json.Unmarshal([]byte(cryptoDescriptor), &cds); err != nil {
 		return shim.Error("unmarshal cryptoDescriptor error: " + err.Error())
@@ -171,13 +169,20 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 
 	//crypto value in each level
 	for _, rawDataMap := range rawDataMapArr {
-		cryptoDataByDescriptor(stub, rawDataMap, cds)
+		cryptoutils.CryptoDataByDescriptor(stub, rawDataMap, cds)
 		//attris := cd.CryptoFields
 		//level := cd.Level
 		//getCryptoKey4ChannelLevel(level, stub.GetChannelID)
 	}
-	writeTo["head"] = ""
-	writeTo["body"] = ""
+
+	blockHead := BlockHead{
+		CryptoDescriptor: cryptoDescriptor,
+	}
+
+	writeTo := HeadBodyBlock{
+		Head: blockHead,
+		Body: rawDataMapArr,
+	}
 
 	bytes, err := json.Marshal(writeTo)
 	if err != nil {
@@ -187,6 +192,49 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 		return shim.Error("write fail " + err.Error())
 	}
 	return shim.Success(nil)
+}
+
+//{"Args":["writeMultiSegData","key","value",SegDescriptor]}
+func (t *Chaincode) readMultiSegData(stub shim.ChaincodeStubInterface, key string) pb.Response {
+	fmt.Printf("key %s\n", key)
+	bytes, err := stub.GetState(key)
+	if err != nil {
+		return shim.Error("query fail " + err.Error())
+	}
+
+	var readTo = new(HeadBodyBlock)
+	if err := json.Unmarshal(bytes, readTo); err != nil {
+		return shim.Error("unmarshal rawBytes error: " + err.Error())
+	}
+	var cds []cryptoutils.CryptoDescriptor
+	if err := json.Unmarshal([]byte(readTo.Head.CryptoDescriptor), &cds); err != nil {
+		return shim.Error("unmarshal cryptoDescriptor error: " + err.Error())
+	}
+
+	//crypto value in each level
+	for _, rawDataMap := range readTo.Body {
+		cryptoutils.DecryptoDataByDescriptor(stub, rawDataMap, cds)
+		//attris := cd.CryptoFields
+		//level := cd.Level
+		//getCryptoKey4ChannelLevel(level, stub.GetChannelID)
+	}
+
+	ret, err2 := json.Marshal(readTo.Body)
+	if err2 != nil {
+		return shim.Error("json marshal error: " + err.Error())
+	}
+	return shim.Success(ret)
+}
+
+//BlockHead descr
+type BlockHead struct {
+	CryptoDescriptor string `json:"cryptoDescriptor"`
+}
+
+//HeadBodyBlock desc
+type HeadBodyBlock struct {
+	Head BlockHead                `json:"head"`
+	Body []map[string]interface{} `json:"body"`
 }
 
 //Init {"Args":["init"]}

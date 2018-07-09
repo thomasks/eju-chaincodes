@@ -61,4 +61,12 @@ func main() {
 		//getCryptoKey4ChannelLevel(level, stub.GetChannelID)
 	}
 	fmt.Printf("after crypto %#v\n\n", rawDataMapArr)
+
+	for _, rawDataMap := range rawDataMapArr {
+		cryptoutils.DecryptoDataByDescriptor(nil, rawDataMap, cds)
+		//attris := cd.CryptoFields
+		//level := cd.Level
+		//getCryptoKey4ChannelLevel(level, stub.GetChannelID)
+	}
+	fmt.Printf("after encrpt %#v\n\n", rawDataMapArr)
 }

@@ -20,6 +20,10 @@ type CryptoDescriptor struct {
 	CryptoFields []string `json:"cryptoFields"`
 }
 
+func init() {
+
+}
+
 //CryptoDataByDescriptor export
 func CryptoDataByDescriptor(stub shim.ChaincodeStubInterface, rawData map[string]interface{}, cds []CryptoDescriptor) {
 	for _, cd := range cds {
@@ -48,11 +52,16 @@ func DecryptoDataByDescriptor(stub shim.ChaincodeStubInterface, encryptData map[
 			rawValueBytes, err := decryptData(encryptValue, cryptokey)
 
 			if err == nil {
-				var obj = new(interface{})
-				err2 := getObj(rawValueBytes, obj)
+				obj, err2 := getObj(rawValueBytes)
 				if err2 == nil {
+					fmt.Printf("getObj value is %v\n", obj)
 					encryptData[key] = obj
+				} else {
+					fmt.Printf("getObj meet error.[%s]\n", err2)
 				}
+
+			} else {
+				fmt.Printf("decrypt data meet error.")
 			}
 		}
 	}
@@ -82,15 +91,19 @@ func getBytes(key interface{}) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func getObj(dataBytes []byte, data *interface{}) error {
+func getObj(dataBytes []byte) (interface{}, error) {
 	var buf *bytes.Buffer
+	var ret = new(string)
 	buf = bytes.NewBuffer(dataBytes)
 	dec := gob.NewDecoder(buf)
-	err := dec.Decode(data)
-	return err
+	err := dec.Decode(ret)
+	return *ret, err
 }
 
 func decryptData(text []byte, key string) ([]byte, error) {
+	fmt.Printf("text:[%s],key:[%s]\n", string(text), key)
+	text, _ = base64.StdEncoding.DecodeString(string(text))
+	fmt.Printf("text:[%s]\n", string(text))
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return nil, err
@@ -100,11 +113,16 @@ func decryptData(text []byte, key string) ([]byte, error) {
 	}
 	iv := text[:aes.BlockSize]
 	text = text[aes.BlockSize:]
+	//fmt.Printf("text:[%s]\n", string(text))
 	cfb := cipher.NewCFBDecrypter(block, iv)
 	cfb.XORKeyStream(text, text)
-	data, err := base64.StdEncoding.DecodeString(string(text))
+	//fmt.Printf("text:[%v]\n", text)
+	/*data, err := base64.StdEncoding.DecodeString(string(text))
 	if err != nil {
+		fmt.Printf("decryptData meet error.err:[%s]\n", err)
 		return nil, err
-	}
-	return data, nil
+	} else {
+		fmt.Printf("decryptData success data:[%s]\n", data)
+	}*/
+	return text, nil
 }
