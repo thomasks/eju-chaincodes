@@ -275,6 +275,16 @@ func (t *Chaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 			return shim.Error("parametes's number is wrong")
 		}
 		return t.write(stub, args[0], args[1])
+	case "writeMultiSegData": //写入
+		if len(args) != 3 {
+			return shim.Error("parametes's number is wrong")
+		}
+		return t.writeMultiSegData(stub, args[0], args[1], args[3])
+	case "readMultiSegData": //写入
+		if len(args) != 1 {
+			return shim.Error("parametes's number is wrong")
+		}
+		return t.readMultiSegData(stub, args[0])
 	case "query_chaincode":
 		if len(args) != 2 {
 			return shim.Error("parametes's number is wrong")
