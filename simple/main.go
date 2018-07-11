@@ -279,7 +279,7 @@ func (t *Chaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		if len(args) != 3 {
 			return shim.Error("parametes's number is wrong")
 		}
-		return t.writeMultiSegData(stub, args[0], args[1], args[3])
+		return t.writeMultiSegData(stub, args[0], args[1], args[2])
 	case "readMultiSegData": //写入
 		if len(args) != 1 {
 			return shim.Error("parametes's number is wrong")
