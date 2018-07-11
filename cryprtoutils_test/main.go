@@ -69,4 +69,7 @@ func main() {
 		//getCryptoKey4ChannelLevel(level, stub.GetChannelID)
 	}
 	fmt.Printf("after encrpt %#v\n\n", rawDataMapArr)
+
+	//str := "QUFBQUFBQUFBQUFBQUFBQUFBQUFBQWZSN1lsbk0zSW1aK3c9"
+	//fmt.Printf("str [%s] \nbytes value is [%v]\n", str, []byte(str))
 }
