@@ -215,11 +215,11 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 func (t *Chaincode) readMultiSegData(stub shim.ChaincodeStubInterface, key string) pb.Response {
 	fmt.Printf("key %s\n", key)
 	bytes, err := stub.GetState(key)
-	/*if err != nil {
+	if err != nil {
 		return shim.Error("query fail " + err.Error())
 	}
 
-	var readTo = new(HeadBodyBlock)
+	/*var readTo = new(HeadBodyBlock)
 	if err := json.Unmarshal(bytes, readTo); err != nil {
 		return shim.Error("unmarshal rawBytes error: " + err.Error())
 	}
