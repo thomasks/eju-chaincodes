@@ -155,7 +155,7 @@ func (t *Chaincode) write(stub shim.ChaincodeStubInterface, key, value string) p
 
 //{"Args":["writeMultiSegData","key","value",SegDescriptor]}
 func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, value, cryptoDescriptor string) pb.Response {
-	fmt.Printf("write %s,value is %s,SegDescriptor is %s", key, value, cryptoDescriptor)
+	fmt.Printf("write %s,value is %s,SegDescriptor is %s\n", key, value, cryptoDescriptor)
 
 	var cds []cryptoutils.CryptoDescriptor
 	if err := json.Unmarshal([]byte(cryptoDescriptor), &cds); err != nil {

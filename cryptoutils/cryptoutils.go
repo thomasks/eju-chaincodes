@@ -31,11 +31,16 @@ func CryptoDataByDescriptor(stub shim.ChaincodeStubInterface, rawData map[string
 		keys := cd.CryptoFields
 		for _, key := range keys {
 			rawValue := rawData[key]
+			fmt.Printf("@@CryptoDataByDescriptor execute begin key is [%s]\nvalue is [%v]\n", key, rawValue)
 			rawBytes, err := getBytes(rawValue)
+			fmt.Printf("@@CryptoDataByDescriptor getBytes value is [%v]\n", rawBytes)
 			if err == nil {
 				encryptValue, err2 := encryptData(rawBytes, cryptokey)
 				if err2 == nil {
+					fmt.Printf("@@CryptoDataByDescriptor encryptData sucess.[%v]\n", encryptValue)
 					rawData[key] = encryptValue
+				} else {
+					fmt.Printf("@@CryptoDataByDescriptor encryptData meet error.[%s]\n", err)
 				}
 			}
 		}
@@ -68,7 +73,7 @@ func DecryptoDataByDescriptor(stub shim.ChaincodeStubInterface, encryptData map[
 				}
 
 			} else {
-				fmt.Printf("decrypt data meet error.")
+				fmt.Printf("decrypt data meet error.[%s]\n", err)
 			}
 		}
 	}
@@ -124,12 +129,12 @@ func decryptData(text []byte, key string) ([]byte, error) {
 	cfb := cipher.NewCFBDecrypter(block, iv)
 	cfb.XORKeyStream(text, text)
 	fmt.Printf("text:[%v]\n", text)
-	data, err := base64.StdEncoding.DecodeString(string(text))
+	/*data, err := base64.StdEncoding.DecodeString(string(text))
 	if err != nil {
 		fmt.Printf("decryptData meet error.err:[%s]\n", err)
 		return nil, err
 	} else {
 		fmt.Printf("decryptData success data:[%s]\n", data)
-	}
+	}*/
 	return text, nil
 }
