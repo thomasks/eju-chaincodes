@@ -242,6 +242,24 @@ func (t *Chaincode) readMultiSegData(stub shim.ChaincodeStubInterface, key strin
 	return shim.Success(bytes)
 }
 
+func parseMultiSegData(stub shim.ChaincodeStubInterface, jsonValue string) (string, error) {
+	var bytes = []byte(jsonValue)
+	var readTo = new(HeadBodyBlock)
+	if err := json.Unmarshal(bytes, readTo); err != nil {
+		return "", err
+	}
+	var cds []cryptoutils.CryptoDescriptor
+	if err := json.Unmarshal([]byte(readTo.Head.CryptoDescriptor), &cds); err != nil {
+		return "", err
+	}
+	cryptoutils.DecryptoDataByDescriptor(stub, readTo.Body, cds)
+	ret, err2 := json.Marshal(readTo)
+	if err2 != nil {
+		return "", err2
+	}
+	return string(ret), nil
+}
+
 func (t *Chaincode) queryByParam(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	if len(args) < 1 {
