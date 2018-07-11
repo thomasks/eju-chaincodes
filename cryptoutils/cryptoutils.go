@@ -123,13 +123,13 @@ func decryptData(text []byte, key string) ([]byte, error) {
 	//fmt.Printf("text:[%s]\n", string(text))
 	cfb := cipher.NewCFBDecrypter(block, iv)
 	cfb.XORKeyStream(text, text)
-	//fmt.Printf("text:[%v]\n", text)
-	/*data, err := base64.StdEncoding.DecodeString(string(text))
+	fmt.Printf("text:[%v]\n", text)
+	data, err := base64.StdEncoding.DecodeString(string(text))
 	if err != nil {
 		fmt.Printf("decryptData meet error.err:[%s]\n", err)
 		return nil, err
 	} else {
 		fmt.Printf("decryptData success data:[%s]\n", data)
-	}*/
+	}
 	return text, nil
 }
