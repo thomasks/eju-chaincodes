@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"github.com/hyperledger/fabric/protos/msp"
 	pb "github.com/hyperledger/fabric/protos/peer"
+	"github.com/satori/go.uuid"
 	"github.com/thomasks/eju-chaincodes/cryptoutils"
 )
 
@@ -169,28 +171,43 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 
 	//crypto value in each level
 	for _, rawDataMap := range rawDataMapArr {
+		uid, error := uuid.NewV4()
+		if error != nil {
+			return shim.Error("get uid error: " + error.Error())
+		}
 		cryptoutils.CryptoDataByDescriptor(stub, rawDataMap, cds)
-		//attris := cd.CryptoFields
-		//level := cd.Level
-		//getCryptoKey4ChannelLevel(level, stub.GetChannelID)
-	}
+		blockHead := BlockHead{
+			CryptoDescriptor: cryptoDescriptor,
+			Key:              key,
+		}
+		writeTo := HeadBodyBlock{
+			Head: blockHead,
+			Body: rawDataMap,
+		}
 
-	blockHead := BlockHead{
+		bytes, err := json.Marshal(writeTo)
+		if err != nil {
+			return shim.Error("json marshal error: " + err.Error())
+		}
+		if err := stub.PutState(uid.String(), bytes); err != nil {
+			return shim.Error("write fail " + err.Error())
+		}
+	}
+	/*blockHead := BlockHead{
 		CryptoDescriptor: cryptoDescriptor,
+		Key:              key,
 	}
-
-	writeTo := HeadBodyBlock{
+	writeTo := HeadBodyBlockStore{
 		Head: blockHead,
 		Body: rawDataMapArr,
 	}
-
 	bytes, err := json.Marshal(writeTo)
 	if err != nil {
 		return shim.Error("json marshal error: " + err.Error())
 	}
 	if err := stub.PutState(key, bytes); err != nil {
 		return shim.Error("write fail " + err.Error())
-	}
+	}*/
 	return shim.Success(nil)
 }
 
@@ -198,7 +215,7 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 func (t *Chaincode) readMultiSegData(stub shim.ChaincodeStubInterface, key string) pb.Response {
 	fmt.Printf("key %s\n", key)
 	bytes, err := stub.GetState(key)
-	if err != nil {
+	/*if err != nil {
 		return shim.Error("query fail " + err.Error())
 	}
 
@@ -209,25 +226,24 @@ func (t *Chaincode) readMultiSegData(stub shim.ChaincodeStubInterface, key strin
 	var cds []cryptoutils.CryptoDescriptor
 	if err := json.Unmarshal([]byte(readTo.Head.CryptoDescriptor), &cds); err != nil {
 		return shim.Error("unmarshal cryptoDescriptor error: " + err.Error())
-	}
+	}*/
 
 	//crypto value in each level
-	for _, rawDataMap := range readTo.Body {
+	/*for _, rawDataMap := range readTo.Body {
 		cryptoutils.DecryptoDataByDescriptor(stub, rawDataMap, cds)
 		//attris := cd.CryptoFields
 		//level := cd.Level
 		//getCryptoKey4ChannelLevel(level, stub.GetChannelID)
 	}
-
 	ret, err2 := json.Marshal(readTo.Body)
 	if err2 != nil {
 		return shim.Error("json marshal error: " + err.Error())
-	}
-	return shim.Success(ret)
+	}*/
+	return shim.Success(bytes)
 }
 
-func (t *SimpleChaincode) queryByParam(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	
+func (t *Chaincode) queryByParam(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+
 	if len(args) < 1 {
 		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
@@ -286,12 +302,13 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 //BlockHead descr
 type BlockHead struct {
 	CryptoDescriptor string `json:"cryptoDescriptor"`
+	Key              string `json:"key"`
 }
 
 //HeadBodyBlock desc
 type HeadBodyBlock struct {
-	Head BlockHead                `json:"head"`
-	Body []map[string]interface{} `json:"body"`
+	Head BlockHead              `json:"head"`
+	Body map[string]interface{} `json:"body"`
 }
 
 //Init {"Args":["init"]}
