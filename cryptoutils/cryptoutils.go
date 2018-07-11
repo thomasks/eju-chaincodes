@@ -53,7 +53,7 @@ func DecryptoDataByDescriptor(stub shim.ChaincodeStubInterface, encryptData map[
 			fmt.Printf("value type is %T\n%v\n", value, value)
 			encryptValue, ok := value.(string)
 			if !ok {
-				fmt.Printf("encryptValue type is not string\n".)
+				fmt.Printf("encryptValue type is not string\n.")
 			}
 			fmt.Printf("encryptValue is [%s]\n", encryptValue)
 			rawValueBytes, err := decryptData([]byte(encryptValue), cryptokey)
