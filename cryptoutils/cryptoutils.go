@@ -44,11 +44,15 @@ func CryptoDataByDescriptor(stub shim.ChaincodeStubInterface, rawData map[string
 
 //DecryptoDataByDescriptor export
 func DecryptoDataByDescriptor(stub shim.ChaincodeStubInterface, encryptData map[string]interface{}, cds []CryptoDescriptor) {
+	fmt.Printf("encryptData is %#v\n", encryptData)
 	for _, cd := range cds {
 		cryptokey := kmc.GetCryptoKey(stub, cd.Level)
 		keys := cd.CryptoFields
 		for _, key := range keys {
-			encryptValue, _ := encryptData[key].([]byte)
+			value := encryptData[key]
+			fmt.Printf("value type is %T\n%v", value, value)
+			encryptValue, _ := value.([]byte)
+			fmt.Printf("encryptValue is [%s]\n", encryptValue)
 			rawValueBytes, err := decryptData(encryptValue, cryptokey)
 
 			if err == nil {

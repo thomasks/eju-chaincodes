@@ -194,7 +194,7 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 	return shim.Success(nil)
 }
 
-//{"Args":["writeMultiSegData","key","value",SegDescriptor]}
+//{"Args":["readMultiSegData","key","value",SegDescriptor]}
 func (t *Chaincode) readMultiSegData(stub shim.ChaincodeStubInterface, key string) pb.Response {
 	fmt.Printf("key %s\n", key)
 	bytes, err := stub.GetState(key)
