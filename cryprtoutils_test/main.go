@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/thomasks/eju-chaincodes/cryptoutils"
 )
 
 var testdata = `[{
@@ -38,7 +40,21 @@ var testdata = `[{
 
 var testcd = `[{"level":"GROUP","cryptoFields":["value"]}]`
 
+var testcd2 = `[{\"level\":\"GROUP\",\"cryptoFields\":[\"value\"]}]`
+
 func main() {
+	testCds()
+}
+
+func testCds() {
+	var cds []cryptoutils.CryptoDescriptor
+	if err := json.Unmarshal([]byte(testcd2), &cds); err != nil {
+		fmt.Printf("@@parseMultiSegData CryptoDescriptor mett error [%s]\n.", err.Error())
+	}
+	fmt.Printf("cds [%v]\n.", cds)
+}
+
+func testRawDataMap() {
 	var rawDataMapArr []map[string]interface{}
 	if err := json.Unmarshal([]byte(testdata), &rawDataMapArr); err != nil {
 		fmt.Println("unmarshal value error: " + err.Error())

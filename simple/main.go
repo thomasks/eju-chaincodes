@@ -268,7 +268,7 @@ func parseMultiSegData(stub shim.ChaincodeStubInterface, jsonValue string) (stri
 	}
 	var cds []cryptoutils.CryptoDescriptor
 	if err := json.Unmarshal([]byte(readTo.Head.CryptoDescriptor), &cds); err != nil {
-		fmt.Printf("@@parseMultiSegData CryptoDescriptor mett error [%s]\n.", err.Error())
+		fmt.Printf("@@parseMultiSegData CryptoDescriptor mett error [%s]\nraw json string is [%s]\n", err.Error(), readTo.Head.CryptoDescriptor)
 		return "", err
 	}
 	cryptoutils.DecryptoDataByDescriptor(stub, readTo.Body, cds)
