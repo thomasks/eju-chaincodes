@@ -335,11 +335,12 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 		decryptString, err := parseMultiSegData(stub, string(queryResponse.Value))
 		if err != nil { // 如果解密失败，则返回加密数据
 			fmt.Printf("parseMultiSegData meet error [%s]\n", err.Error())
-			buffer.WriteString(string(queryResponse.Value))
+			decryptBuffer.WriteString(string(queryResponse.Value))
 		} else { // 解密成功，则返回解密后数据
-			buffer.WriteString(decryptString)
+			decryptBuffer.WriteString(decryptString)
 		}
 		decryptBuffer.WriteString("}")
+		buffer.WriteString(decryptBuffer.String())
 		bArrayMemberAlreadyWritten = true
 	}
 	buffer.WriteString("]")
