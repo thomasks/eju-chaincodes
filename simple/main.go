@@ -260,11 +260,16 @@ func (t *Chaincode) readMultiSegData(stub shim.ChaincodeStubInterface, key strin
 }
 
 func parseMultiSegData(stub shim.ChaincodeStubInterface, jsonValue string) (string, error) {
+	fmt.Printf("@@parseMultiSegData jsonValue is: [%s]\n", jsonValue)
 	var bytes = []byte(jsonValue)
 	var readTo = new(HeadBodyBlock)
 	if err := json.Unmarshal(bytes, readTo); err != nil {
 		fmt.Printf("@@parseMultiSegData readTo mett error [%s]\n.", err.Error())
 		return "", err
+	} else {
+		fmt.Printf("@@parseMultiSegData Unmarshal readTo success.Value is [%v]\n", readTo)
+		fmt.Printf("@@readTo.Head is [%v]\n", readTo.Head)
+		fmt.Printf("@@readTo.Body is [%v]\n", readTo.Body)
 	}
 	var cds []cryptoutils.CryptoDescriptor
 	if err := json.Unmarshal([]byte(readTo.Head.CryptoDescriptor), &cds); err != nil {
