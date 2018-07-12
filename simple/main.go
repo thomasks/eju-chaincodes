@@ -316,15 +316,23 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 		if bArrayMemberAlreadyWritten == true {
 			buffer.WriteString(",")
 		}
-		buffer.WriteString("{\"Key\":")
-		buffer.WriteString("\"")
-		buffer.WriteString(queryResponse.Key)
-		buffer.WriteString("\"")
+		// 获取每个需要解密的数据
+		var decryptBuffer bytes.Buffer
+		decryptBuffer.WriteString("{\"Key\":")
+		decryptBuffer.WriteString("\"")
+		decryptBuffer.WriteString(queryResponse.Key)
+		decryptBuffer.WriteString("\"")
 
-		buffer.WriteString(", \"Record\":")
+		decryptBuffer.WriteString(", \"Record\":")
 		// Record is a JSON object, so we write as-is
-		buffer.WriteString(string(queryResponse.Value))
-		buffer.WriteString("}")
+		decryptBuffer.WriteString(string(queryResponse.Value))
+		decryptBuffer.WriteString("}")
+		decryptString, err := parseMultiSegData(stub, decryptBuffer.String())
+		if err != nil { // 如果解密失败，则返回加密数据
+			buffer.WriteString(decryptBuffer.String())
+		} else { // 解密成功，则返回解密后数据
+			buffer.WriteString(decryptString)
+		}
 		bArrayMemberAlreadyWritten = true
 	}
 	buffer.WriteString("]")
