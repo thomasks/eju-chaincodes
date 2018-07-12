@@ -263,15 +263,18 @@ func parseMultiSegData(stub shim.ChaincodeStubInterface, jsonValue string) (stri
 	var bytes = []byte(jsonValue)
 	var readTo = new(HeadBodyBlock)
 	if err := json.Unmarshal(bytes, readTo); err != nil {
+		fmt.Printf("@@parseMultiSegData readTo mett error [%s]\n.", err.Error())
 		return "", err
 	}
 	var cds []cryptoutils.CryptoDescriptor
 	if err := json.Unmarshal([]byte(readTo.Head.CryptoDescriptor), &cds); err != nil {
+		fmt.Printf("@@parseMultiSegData CryptoDescriptor mett error [%s]\n.", err.Error())
 		return "", err
 	}
 	cryptoutils.DecryptoDataByDescriptor(stub, readTo.Body, cds)
 	ret, err2 := json.Marshal(readTo)
 	if err2 != nil {
+		fmt.Printf("@@parseMultiSegData Marshal mett error [%s]\n.", err2.Error())
 		return "", err2
 	}
 	return string(ret), nil
@@ -287,6 +290,7 @@ func (t *Chaincode) queryByParam(stub shim.ChaincodeStubInterface, args []string
 
 	queryResults, err := getQueryResultForQueryString(stub, queryString)
 	if err != nil {
+		fmt.Printf("@@queryByParam mett error [%s]\n.", err.Error())
 		return shim.Error(err.Error())
 	}
 	return shim.Success(queryResults)
@@ -321,7 +325,7 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 		decryptBuffer.WriteString("{\"Key\":")
 		decryptBuffer.WriteString("\"")
 		decryptBuffer.WriteString(queryResponse.Key)
-		fmt.Printf("queryResponse.Key is[%s]\n", queryResponse.Value)
+		fmt.Printf("queryResponse.Key is[%s]\n", queryResponse.Key)
 		decryptBuffer.WriteString("\"")
 
 		decryptBuffer.WriteString(", \"Record\":")
@@ -331,6 +335,7 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 		decryptBuffer.WriteString("}")
 		decryptString, err := parseMultiSegData(stub, decryptBuffer.String())
 		if err != nil { // 如果解密失败，则返回加密数据
+			fmt.Printf("parseMultiSegData meet error [%s]\n", err.Error())
 			buffer.WriteString(decryptBuffer.String())
 		} else { // 解密成功，则返回解密后数据
 			buffer.WriteString(decryptString)
