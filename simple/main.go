@@ -171,7 +171,8 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 
 	//crypto value in each level
 	for _, rawDataMap := range rawDataMapArr {
-		uid, error := uuid.NewV4()
+
+		idStr, error := generateID(key, rawDataMap)
 		if error != nil {
 			return shim.Error("get uid error: " + error.Error())
 		}
@@ -189,7 +190,7 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 		if err != nil {
 			return shim.Error("json marshal error: " + err.Error())
 		}
-		if err := stub.PutState(uid.String(), bytes); err != nil {
+		if err := stub.PutState(idStr, bytes); err != nil {
 			return shim.Error("write fail " + err.Error())
 		}
 	}
@@ -209,6 +210,22 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 		return shim.Error("write fail " + err.Error())
 	}*/
 	return shim.Success(nil)
+}
+
+func generateID(key string, rawDataMap map[string]interface{}) (string, error) {
+	id := rawDataMap["id"]
+	if id != nil {
+		idStr := fmt.Sprintf("%s-%v", key, id)
+		return idStr, nil
+	} else {
+		uid, err := uuid.NewV4()
+		if err != nil {
+			return "", err
+		} else {
+			return uid.String(), nil
+		}
+	}
+
 }
 
 //{"Args":["readMultiSegData","key","value",SegDescriptor]}

@@ -3,8 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/thomasks/eju-chaincodes/cryptoutils"
 )
 
 var testdata = `[{
@@ -41,7 +39,23 @@ var testdata = `[{
 var testcd = `[{"level":"GROUP","cryptoFields":["value"]}]`
 
 func main() {
+	var rawDataMapArr []map[string]interface{}
+	if err := json.Unmarshal([]byte(testdata), &rawDataMapArr); err != nil {
+		fmt.Println("unmarshal value error: " + err.Error())
+	}
+	for _, rawDataMap := range rawDataMapArr {
+		id := rawDataMap["id"]
 
+		if id != nil {
+			idStr := fmt.Sprintf("%s-%v", "1_20170107_1#1879", id)
+			fmt.Printf("rawDataMap id type is [%T]\n rawDataMap id value is [%v]\n", id, id)
+			fmt.Printf("rawDataMap idStr type is [%T]\n rawDataMap idStr value is [%v]\n", idStr, idStr)
+		}
+
+	}
+}
+
+/*func testFlow() {
 	var cds []cryptoutils.CryptoDescriptor
 	if err := json.Unmarshal([]byte(testcd), &cds); err != nil {
 		fmt.Println("meet error." + err.Error())
@@ -53,23 +67,13 @@ func main() {
 	}
 
 	fmt.Printf("before crypto %#v\n\n", rawDataMapArr)
-	//crypto value in each level
 	for _, rawDataMap := range rawDataMapArr {
 		cryptoutils.CryptoDataByDescriptor(nil, rawDataMap, cds)
-		//attris := cd.CryptoFields
-		//level := cd.Level
-		//getCryptoKey4ChannelLevel(level, stub.GetChannelID)
 	}
 	fmt.Printf("after crypto %#v\n\n", rawDataMapArr)
 
 	for _, rawDataMap := range rawDataMapArr {
 		cryptoutils.DecryptoDataByDescriptor(nil, rawDataMap, cds)
-		//attris := cd.CryptoFields
-		//level := cd.Level
-		//getCryptoKey4ChannelLevel(level, stub.GetChannelID)
 	}
 	fmt.Printf("after encrpt %#v\n\n", rawDataMapArr)
-
-	//str := "QUFBQUFBQUFBQUFBQUFBQUFBQUFBQWZSN1lsbk0zSW1aK3c9"
-	//fmt.Printf("str [%s] \nbytes value is [%v]\n", str, []byte(str))
-}
+}*/
