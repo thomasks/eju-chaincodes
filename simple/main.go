@@ -260,16 +260,12 @@ func (t *Chaincode) readMultiSegData(stub shim.ChaincodeStubInterface, key strin
 }
 
 func parseMultiSegData(stub shim.ChaincodeStubInterface, jsonValue string) (string, error) {
-	fmt.Printf("@@parseMultiSegData jsonValue is: [%s]\n", jsonValue)
+	//fmt.Printf("@@parseMultiSegData jsonValue is: [%s]\n", jsonValue)
 	var bytes = []byte(jsonValue)
 	var readTo = new(HeadBodyBlock)
 	if err := json.Unmarshal(bytes, readTo); err != nil {
 		fmt.Printf("@@parseMultiSegData readTo mett error [%s]\n.", err.Error())
 		return "", err
-	} else {
-		fmt.Printf("@@parseMultiSegData Unmarshal readTo success.Value is [%v]\n", readTo)
-		fmt.Printf("@@readTo.Head is [%v]\n", readTo.Head)
-		fmt.Printf("@@readTo.Body is [%v]\n", readTo.Body)
 	}
 	var cds []cryptoutils.CryptoDescriptor
 	if err := json.Unmarshal([]byte(readTo.Head.CryptoDescriptor), &cds); err != nil {
@@ -330,12 +326,12 @@ func getQueryResultForQueryString(stub shim.ChaincodeStubInterface, queryString 
 		decryptBuffer.WriteString("{\"Key\":")
 		decryptBuffer.WriteString("\"")
 		decryptBuffer.WriteString(queryResponse.Key)
-		fmt.Printf("queryResponse.Key is[%s]\n", queryResponse.Key)
+		//fmt.Printf("queryResponse.Key is[%s]\n", queryResponse.Key)
 		decryptBuffer.WriteString("\"")
 
 		decryptBuffer.WriteString(", \"Record\":")
 		// Record is a JSON object, so we write as-is
-		fmt.Printf("queryResponse.Value is[%s]\n", queryResponse.Value)
+		//fmt.Printf("queryResponse.Value is[%s]\n", queryResponse.Value)
 		decryptString, err := parseMultiSegData(stub, string(queryResponse.Value))
 		if err != nil { // 如果解密失败，则返回加密数据
 			fmt.Printf("parseMultiSegData meet error [%s]\n", err.Error())
