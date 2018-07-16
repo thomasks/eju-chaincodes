@@ -276,12 +276,12 @@ func parseMultiSegData(stub shim.ChaincodeStubInterface, jsonValue string) (stri
 		fmt.Println("head is not a map!")
 	}
 
-	cdsJSON, err := json.Marshal(headMap["cryptoDescriptor"])
-	if err != nil {
-		return jsonValue, err
+	var cdsJSON, ok2 = headMap["cryptoDescriptor"].(string)
+	if !ok2 {
+		fmt.Printf("cryptoDescriptor is not a string\n,cryptoDescriptor type is %T\ncryptoDescriptor value is %v\n", headMap["cryptoDescriptor"], headMap["cryptoDescriptor"])
 	}
 	var cds []cryptoutils.CryptoDescriptor
-	if err := json.Unmarshal(cdsJSON, &cds); err != nil {
+	if err := json.Unmarshal([]byte(cdsJSON), &cds); err != nil {
 		fmt.Printf("@@parseMultiSegData CryptoDescriptor mett error [%s]\nraw json string is [%s]\n", err.Error(), cdsJSON)
 		return jsonValue, err
 	}
