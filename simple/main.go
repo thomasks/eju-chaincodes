@@ -215,7 +215,7 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 func generateID(key string, rawDataMap map[string]interface{}) (string, error) {
 	id := rawDataMap["id"]
 	if id != nil {
-		fmt.Printf("id value is %v\n", id)
+		fmt.Printf("id value is %v\nid type is %T\n", id, id)
 		idStr := fmt.Sprintf("%s-%v", key, id)
 		fmt.Println("idStr value is", idStr)
 		return idStr, nil
@@ -260,10 +260,10 @@ func (t *Chaincode) readMultiSegData(stub shim.ChaincodeStubInterface, key strin
 }
 
 func parseMultiSegData(stub shim.ChaincodeStubInterface, jsonValue string) (string, error) {
-	//fmt.Printf("@@parseMultiSegData jsonValue is: [%s]\n", jsonValue)
+	fmt.Printf("@@parseMultiSegData jsonValue is: [%s]\n", jsonValue)
 	var bytes = []byte(jsonValue)
 	var readTo = make(map[string]interface{}, 128)
-	if err := json.Unmarshal(bytes, readTo); err != nil {
+	if err := json.Unmarshal(bytes, &readTo); err != nil {
 		fmt.Printf("@@parseMultiSegData readTo mett error [%s]\n.", err.Error())
 		return "", err
 	}
