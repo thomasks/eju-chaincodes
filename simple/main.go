@@ -218,9 +218,9 @@ func generateID(key string, rawDataMap map[string]interface{}) (string, error) {
 		var idStr string
 		switch id.(type) {
 		case float64, float32:
-			idStr = fmt.Sprintf("%s-%0.0f", "1_20170107_1#1879", v)
+			idStr = fmt.Sprintf("%s-%0.0f", "1_20170107_1#1879", id)
 		default:
-			idStr = fmt.Sprintf("%s-%0.0f", "1_20170107_1#1879", v)
+			idStr = fmt.Sprintf("%s-%v", "1_20170107_1#1879", id)
 		}
 		return idStr, nil
 	}
