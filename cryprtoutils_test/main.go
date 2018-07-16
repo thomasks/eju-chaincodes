@@ -43,7 +43,9 @@ var testcd = `[{"level":"GROUP","cryptoFields":["value"]}]`
 var testcd2 = `[{\"level\":\"GROUP\",\"cryptoFields\":[\"value\"]}]`
 
 func main() {
-	testCds()
+	//testCds()
+	str := fmt.Sprintf("%s-%v", "1_20170107_1#1879", 5223589)
+	fmt.Println(str)
 }
 
 func testCds() {

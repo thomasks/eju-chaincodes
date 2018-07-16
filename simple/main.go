@@ -217,14 +217,12 @@ func generateID(key string, rawDataMap map[string]interface{}) (string, error) {
 	if id != nil {
 		idStr := fmt.Sprintf("%s-%v", key, id)
 		return idStr, nil
-	} else {
-		uid, err := uuid.NewV4()
-		if err != nil {
-			return "", err
-		} else {
-			return uid.String(), nil
-		}
 	}
+	uid, err := uuid.NewV4()
+	if err != nil {
+		return "", err
+	}
+	return uid.String(), nil
 
 }
 
@@ -262,17 +260,27 @@ func (t *Chaincode) readMultiSegData(stub shim.ChaincodeStubInterface, key strin
 func parseMultiSegData(stub shim.ChaincodeStubInterface, jsonValue string) (string, error) {
 	//fmt.Printf("@@parseMultiSegData jsonValue is: [%s]\n", jsonValue)
 	var bytes = []byte(jsonValue)
-	var readTo = new(HeadBodyBlock)
+	var readTo map[string]interface{}
 	if err := json.Unmarshal(bytes, readTo); err != nil {
 		fmt.Printf("@@parseMultiSegData readTo mett error [%s]\n.", err.Error())
 		return "", err
 	}
-	var cds []cryptoutils.CryptoDescriptor
-	if err := json.Unmarshal([]byte(readTo.Head.CryptoDescriptor), &cds); err != nil {
-		fmt.Printf("@@parseMultiSegData CryptoDescriptor mett error [%s]\nraw json string is [%s]\n", err.Error(), readTo.Head.CryptoDescriptor)
+	headJSONStr, ok := readTo["head"].(string)
+	if !ok {
+		fmt.Printf("readTo[head] is not string\n.")
+	}
+	var head BlockHead
+	if err := json.Unmarshal([]byte(headJSONStr), head); err != nil {
+		fmt.Printf("@@parseMultiSegData head mett error [%s]\n.", err.Error())
 		return "", err
 	}
-	cryptoutils.DecryptoDataByDescriptor(stub, readTo.Body, cds)
+
+	var cds []cryptoutils.CryptoDescriptor
+	if err := json.Unmarshal([]byte(head.CryptoDescriptor), &cds); err != nil {
+		fmt.Printf("@@parseMultiSegData CryptoDescriptor mett error [%s]\nraw json string is [%s]\n", err.Error(), head.CryptoDescriptor)
+		return "", err
+	}
+	cryptoutils.DecryptoDataByDescriptor(stub, readTo, cds)
 	ret, err2 := json.Marshal(readTo)
 	if err2 != nil {
 		fmt.Printf("@@parseMultiSegData Marshal mett error [%s]\n.", err2.Error())
