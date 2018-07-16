@@ -181,11 +181,11 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 			CryptoDescriptor: cryptoDescriptor,
 			Key:              key,
 		}
-		writeTo := HeadBodyBlock{
-			Head: blockHead,
-			Body: rawDataMap,
+		var writeTo = make(map[string]interface{}, 128)
+		writeTo["head"] = blockHead
+		for key, value := range rawDataMap {
+			writeTo[key] = value
 		}
-
 		bytes, err := json.Marshal(writeTo)
 		if err != nil {
 			return shim.Error("json marshal error: " + err.Error())
