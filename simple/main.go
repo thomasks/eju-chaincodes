@@ -215,7 +215,9 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 func generateID(key string, rawDataMap map[string]interface{}) (string, error) {
 	id := rawDataMap["id"]
 	if id != nil {
+		fmt.Printf("id value is %v\n", id)
 		idStr := fmt.Sprintf("%s-%v", key, id)
+		fmt.Println("idStr value is", idStr)
 		return idStr, nil
 	}
 	uid, err := uuid.NewV4()
@@ -260,14 +262,14 @@ func (t *Chaincode) readMultiSegData(stub shim.ChaincodeStubInterface, key strin
 func parseMultiSegData(stub shim.ChaincodeStubInterface, jsonValue string) (string, error) {
 	//fmt.Printf("@@parseMultiSegData jsonValue is: [%s]\n", jsonValue)
 	var bytes = []byte(jsonValue)
-	var readTo map[string]interface{}
+	var readTo = make(map[string]interface{}, 128)
 	if err := json.Unmarshal(bytes, readTo); err != nil {
 		fmt.Printf("@@parseMultiSegData readTo mett error [%s]\n.", err.Error())
 		return "", err
 	}
 	headJSONStr, ok := readTo["head"].(string)
 	if !ok {
-		fmt.Printf("readTo[head] is not string\n.")
+		fmt.Printf("readTo[head] is not string\n.headJSONStr type is %T\nheadJSONStr value is %v", headJSONStr, headJSONStr)
 	}
 	var head BlockHead
 	if err := json.Unmarshal([]byte(headJSONStr), head); err != nil {
