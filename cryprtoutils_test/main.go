@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"github.com/thomasks/eju-chaincodes/cryptoutils"
 )
@@ -44,8 +45,10 @@ var testcd2 = `[{\"level\":\"GROUP\",\"cryptoFields\":[\"value\"]}]`
 
 func main() {
 	//testCds()
-	str := fmt.Sprintf("%s-%v", "1_20170107_1#1879", 5223589)
-	fmt.Println(str)
+	var v float64
+	v = 5223589
+	t := reflect.TypeOf(v)
+	fmt.Println(t)
 }
 
 func testCds() {

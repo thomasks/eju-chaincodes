@@ -215,9 +215,13 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 func generateID(key string, rawDataMap map[string]interface{}) (string, error) {
 	id := rawDataMap["id"]
 	if id != nil {
-		fmt.Printf("id value is %v\nid type is %T\n", id, id)
-		idStr := fmt.Sprintf("%s-%v", key, id)
-		fmt.Println("idStr value is", idStr)
+		var idStr string
+		switch id.(type) {
+		case float64, float32:
+			idStr = fmt.Sprintf("%s-%0.0f", "1_20170107_1#1879", v)
+		default:
+			idStr = fmt.Sprintf("%s-%0.0f", "1_20170107_1#1879", v)
+		}
 		return idStr, nil
 	}
 	uid, err := uuid.NewV4()
@@ -269,7 +273,7 @@ func parseMultiSegData(stub shim.ChaincodeStubInterface, jsonValue string) (stri
 	}
 	headJSONStr, ok := readTo["head"].(string)
 	if !ok {
-		fmt.Printf("readTo[head] is not string\n.headJSONStr type is %T\nheadJSONStr value is %v", headJSONStr, headJSONStr)
+		fmt.Printf("readTo[head] is not string\nheadJSONStr type is %T\nheadJSONStr value is %v", readTo["head"], readTo["head"])
 	}
 	var head BlockHead
 	if err := json.Unmarshal([]byte(headJSONStr), head); err != nil {
