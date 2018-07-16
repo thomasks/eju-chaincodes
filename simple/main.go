@@ -218,9 +218,9 @@ func generateID(key string, rawDataMap map[string]interface{}) (string, error) {
 		var idStr string
 		switch id.(type) {
 		case float64, float32:
-			idStr = fmt.Sprintf("%s-%0.0f", "1_20170107_1#1879", id)
+			idStr = fmt.Sprintf("%s-%0.0f", key, id)
 		default:
-			idStr = fmt.Sprintf("%s-%v", "1_20170107_1#1879", id)
+			idStr = fmt.Sprintf("%s-%v", key, id)
 		}
 		return idStr, nil
 	}
@@ -269,28 +269,27 @@ func parseMultiSegData(stub shim.ChaincodeStubInterface, jsonValue string) (stri
 	var readTo = make(map[string]interface{}, 128)
 	if err := json.Unmarshal(bytes, &readTo); err != nil {
 		fmt.Printf("@@parseMultiSegData readTo mett error [%s]\n.", err.Error())
-		return "", err
+		return jsonValue, err
 	}
-	headJSONStr, ok := readTo["head"].(string)
+	var headMap, ok = readTo["head"].(map[string]interface{})
 	if !ok {
-		fmt.Printf("readTo[head] is not string\nheadJSONStr type is %T\nheadJSONStr value is %v", readTo["head"], readTo["head"])
-	}
-	var head BlockHead
-	if err := json.Unmarshal([]byte(headJSONStr), head); err != nil {
-		fmt.Printf("@@parseMultiSegData head mett error [%s]\n.", err.Error())
-		return "", err
+		fmt.Println("head is not a map!")
 	}
 
+	cdsJSON, err := json.Marshal(headMap["cryptoDescriptor"])
+	if err != nil {
+		return jsonValue, err
+	}
 	var cds []cryptoutils.CryptoDescriptor
-	if err := json.Unmarshal([]byte(head.CryptoDescriptor), &cds); err != nil {
-		fmt.Printf("@@parseMultiSegData CryptoDescriptor mett error [%s]\nraw json string is [%s]\n", err.Error(), head.CryptoDescriptor)
-		return "", err
+	if err := json.Unmarshal(cdsJSON, &cds); err != nil {
+		fmt.Printf("@@parseMultiSegData CryptoDescriptor mett error [%s]\nraw json string is [%s]\n", err.Error(), cdsJSON)
+		return jsonValue, err
 	}
 	cryptoutils.DecryptoDataByDescriptor(stub, readTo, cds)
 	ret, err2 := json.Marshal(readTo)
 	if err2 != nil {
 		fmt.Printf("@@parseMultiSegData Marshal mett error [%s]\n.", err2.Error())
-		return "", err2
+		return jsonValue, err2
 	}
 	return string(ret), nil
 }
