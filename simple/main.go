@@ -381,6 +381,15 @@ func (t *Chaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Success(nil)
 }
 
+func (t *Chaincode) delByKey(stub shim.ChaincodeStubInterface, key string) pb.Response {
+	fmt.Printf("query %s\n", key)
+	err := stub.DelState(key)
+	if err != nil {
+		return shim.Error("query fail " + err.Error())
+	}
+	return shim.Success(nil)
+}
+
 //Invoke {"write":["key","value"]}
 //Invoke {"writeMultiSegData":["key","value","SegDataDescriptor"]}
 //
@@ -393,6 +402,11 @@ func (t *Chaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.call(stub, args)
 	case "append": //追加
 		return t.append(stub, args)
+	case "del": //追加
+		if len(args) != 1 {
+			return shim.Error("parametes's number is wrong")
+		}
+		return t.delByKey(stub, args[0])
 	case "attr":
 		if len(args) != 1 {
 			return shim.Error("parametes's number is wrong")
