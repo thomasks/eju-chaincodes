@@ -117,7 +117,7 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 		return shim.Error("unmarshal value error: " + err.Error())
 	}
 
-	if len(cds) > 1 {
+	if len(cds) >= 1 {
 		cryptoutils.CryptoDataByDescriptor(stub, rawDataMap, cds)
 	}
 	blockHead := BlockHead{
@@ -140,9 +140,10 @@ func (t *Chaincode) writeMultiSegData(stub shim.ChaincodeStubInterface, key, val
 	var ret = make(map[string]interface{}, 4)
 
 	txID := stub.GetTxID()
-	ret["txID"] = txID
 
-	bytes2, err2 := json.Marshal(txID)
+	ret["transactionId"] = txID
+
+	bytes2, err2 := json.Marshal(ret)
 	if err2 != nil {
 		return shim.Error("json marshal error: " + err2.Error())
 	}
